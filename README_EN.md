@@ -50,6 +50,7 @@ services:
     environment:
       - LISTEN_ADDR=:8080
       - DATABASE_PATH=/app/data/proxy.db
+      - DESKTOP_ACCESS_KEY=replace-with-a-dedicated-desktop-key
       - TAVILY_BASE_URL=https://api.tavily.com
       - UPSTREAM_TIMEOUT=30s
     volumes:
@@ -154,6 +155,7 @@ curl -X POST "http://localhost:8080/search" \
 
 - Supports `{"api_key": "<MASTER_KEY>"}` or `{"apiKey": "<MASTER_KEY>"}` in JSON bodies.
 - Supports the `api_key=<MASTER_KEY>` GET parameter.
+- `DESKTOP_ACCESS_KEY` configures a separate restricted credential. It only permits `POST /search` and `POST /extract`; it cannot access management APIs, usage or other Tavily proxy endpoints, or MCP.
 
 ### MCP (Model Context Protocol)
 
@@ -189,6 +191,7 @@ If you need stateful sessions, set `MCP_STATELESS=false` and ensure your reverse
 | :----------------- | :----------------------- | :----------------------- |
 | `LISTEN_ADDR`      | Server listening address | `:8080`                  |
 | `DATABASE_PATH`    | Path to SQLite database  | `/app/data/proxy.db`     |
+| `DESKTOP_ACCESS_KEY` | Desktop credential restricted to search and extract; empty disables it | Empty |
 | `TAVILY_BASE_URL`  | Upstream Tavily API URL  | `https://api.tavily.com` |
 | `UPSTREAM_TIMEOUT` | Upstream request timeout | `150s`                   |
 | `MCP_STATELESS`    | Enable stateless MCP mode | `true`                  |

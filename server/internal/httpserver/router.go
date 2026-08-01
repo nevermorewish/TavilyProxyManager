@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"bytes"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"io"
@@ -102,6 +103,12 @@ func NewRouter(deps Dependencies) http.Handler {
 			handleProxy(c, deps.TavilyProxy, sanitizedBody, sanitizedQuery)
 			return
 		}
+		if isDesktopSearchRequest(c.Request) && (authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, authHeaderToken) ||
+			authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, apiKeyFromBody) ||
+			authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, apiKeyFromQuery)) {
+			handleProxy(c, deps.TavilyProxy, sanitizedBody, sanitizedQuery)
+			return
+		}
 		if hasCredential {
 			respondUnauthorized(c)
 			return
@@ -119,6 +126,20 @@ func NewRouter(deps Dependencies) http.Handler {
 	})
 
 	return r
+}
+
+func isDesktopSearchRequest(r *http.Request) bool {
+	if r.Method != http.MethodPost {
+		return false
+	}
+	return r.URL.Path == "/search" || r.URL.Path == "/extract"
+}
+
+func authenticateDesktopAccessKey(configured, provided string) bool {
+	if configured == "" || provided == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(configured), []byte(provided)) == 1
 }
 
 func masterAuthMiddleware(master *services.MasterKeyService) gin.HandlerFunc {
