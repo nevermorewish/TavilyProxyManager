@@ -50,6 +50,7 @@ services:
     environment:
       - LISTEN_ADDR=:8080
       - DATABASE_PATH=/app/data/proxy.db
+      - DESKTOP_ACCESS_KEY=replace-with-a-dedicated-desktop-key
       - TAVILY_BASE_URL=https://api.tavily.com
       - UPSTREAM_TIMEOUT=30s
     volumes:
@@ -154,6 +155,7 @@ curl -X POST "http://localhost:8080/search" \
 
 - 支持 `{"api_key": "<MASTER_KEY>"}` 或 `{"apiKey": "<MASTER_KEY>"}`。
 - 支持 GET 参数 `?api_key=<MASTER_KEY>`。
+- 可通过 `DESKTOP_ACCESS_KEY` 配置独立的受限凭据。该凭据仅允许 `POST /search` 和 `POST /extract`，不能访问管理 API、用量接口、其他 Tavily 转发端点或 MCP。
 
 ### MCP (Model Context Protocol)
 
@@ -189,6 +191,7 @@ curl -X POST "http://localhost:8080/search" \
 | :----------------- | :------------------- | :----------------------- |
 | `LISTEN_ADDR`      | 服务监听地址         | `:8080`                  |
 | `DATABASE_PATH`    | SQLite 数据库路径    | `/app/data/proxy.db`     |
+| `DESKTOP_ACCESS_KEY` | 仅允许搜索与提取的桌面端凭据；留空则禁用 | 空 |
 | `TAVILY_BASE_URL`  | 上游 Tavily API 地址 | `https://api.tavily.com` |
 | `UPSTREAM_TIMEOUT` | 上游请求超时时间     | `150s`                   |
 | `MCP_STATELESS`    | MCP 是否无状态模式   | `true`                   |

@@ -7,15 +7,16 @@ import (
 )
 
 type Config struct {
-	ListenAddr      string
-	DatabasePath    string
-	MasterKey       string
-	TavilyBaseURL   string
-	UpstreamTimeout time.Duration
-	MCPStateless    bool
-	MCPSessionTTL   time.Duration
-	LogDir          string // log file directory; empty = stdout only
-	LogLevel        string // debug/info/warn/error
+	ListenAddr       string
+	DatabasePath     string
+	MasterKey        string
+	DesktopAccessKey string
+	TavilyBaseURL    string
+	UpstreamTimeout  time.Duration
+	MCPStateless     bool
+	MCPSessionTTL    time.Duration
+	LogDir           string // log file directory; empty = stdout only
+	LogLevel         string // debug/info/warn/error
 }
 
 func FromEnv() Config {
@@ -27,6 +28,7 @@ func FromEnv() Config {
 
 	dbPath := getenvFirst("./server/data/app.db", "DB_PATH", "DATABASE_PATH")
 	masterKey := getenv("MASTER_KEY", "")
+	desktopAccessKey := getenv("DESKTOP_ACCESS_KEY", "")
 	baseURL := getenv("TAVILY_BASE_URL", "https://api.tavily.com")
 	timeout := getenvDuration("UPSTREAM_TIMEOUT", 150*time.Second)
 	mcpStateless := getenvBool("MCP_STATELESS", true)
@@ -35,15 +37,16 @@ func FromEnv() Config {
 	logLevel := getenv("LOG_LEVEL", "info")
 
 	return Config{
-		ListenAddr:      listenAddr,
-		DatabasePath:    dbPath,
-		MasterKey:       masterKey,
-		TavilyBaseURL:   baseURL,
-		UpstreamTimeout: timeout,
-		MCPStateless:    mcpStateless,
-		MCPSessionTTL:   mcpSessionTTL,
-		LogDir:          logDir,
-		LogLevel:        logLevel,
+		ListenAddr:       listenAddr,
+		DatabasePath:     dbPath,
+		MasterKey:        masterKey,
+		DesktopAccessKey: desktopAccessKey,
+		TavilyBaseURL:    baseURL,
+		UpstreamTimeout:  timeout,
+		MCPStateless:     mcpStateless,
+		MCPSessionTTL:    mcpSessionTTL,
+		LogDir:           logDir,
+		LogLevel:         logLevel,
 	}
 }
 

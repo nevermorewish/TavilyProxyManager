@@ -8,6 +8,7 @@ services:
       - LISTEN_ADDR=:8080
       - DATABASE_PATH=/app/data/proxy.db
       - MASTER_KEY=RbO8G97uRRQjFt5o-XD5dg57ZivsGbM5WbjkPj4Ho0Q
+      - DESKTOP_ACCESS_KEY=${DESKTOP_ACCESS_KEY:-}
       - TAVILY_BASE_URL=https://api.tavily.com
       - UPSTREAM_TIMEOUT=30s
       - HTTP_PROXY=http://host.docker.internal:10808
