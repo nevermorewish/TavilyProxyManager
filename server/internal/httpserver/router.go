@@ -29,6 +29,7 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	mcpHandler := mcpserver.NewHandler(mcpserver.Dependencies{
 		MasterKey:  deps.MasterKeyService,
+		AccessKeys: deps.AccessKeyService,
 		Proxy:      deps.TavilyProxy,
 		Stats:      deps.StatsService,
 		Stateless:  deps.Config.MCPStateless,
@@ -51,6 +52,10 @@ func NewRouter(deps Dependencies) http.Handler {
 		api.DELETE("/keys/invalid", func(c *gin.Context) { handleDeleteInvalidKeys(c, deps.KeyService) })
 		api.PUT("/keys/:id", func(c *gin.Context) { handleUpdateKey(c, deps, c.Param("id")) })
 		api.DELETE("/keys/:id", func(c *gin.Context) { handleDeleteKey(c, deps.KeyService, c.Param("id")) })
+
+		api.GET("/access-keys", func(c *gin.Context) { handleListAccessKeys(c, deps.AccessKeyService) })
+		api.POST("/access-keys", func(c *gin.Context) { handleCreateAccessKey(c, deps.AccessKeyService) })
+		api.DELETE("/access-keys/:id", func(c *gin.Context) { handleDeleteAccessKey(c, deps.AccessKeyService, c.Param("id")) })
 
 		api.GET("/logs/status-codes", func(c *gin.Context) { handleLogStatusCodes(c, deps.LogService) })
 		api.GET("/logs", func(c *gin.Context) { handleListLogs(c, deps.LogService) })
@@ -99,13 +104,13 @@ func NewRouter(deps Dependencies) http.Handler {
 		apiKeyFromBody, sanitizedBody := stripAPIKeyFromJSON(body)
 
 		hasCredential := authHeaderToken != "" || apiKeyFromBody != "" || apiKeyFromQuery != ""
-		if deps.MasterKeyService.Authenticate(authHeaderToken) || deps.MasterKeyService.Authenticate(apiKeyFromBody) || deps.MasterKeyService.Authenticate(apiKeyFromQuery) {
+		if authenticateClient(deps, authHeaderToken) || authenticateClient(deps, apiKeyFromBody) || authenticateClient(deps, apiKeyFromQuery) {
 			handleProxy(c, deps.TavilyProxy, sanitizedBody, sanitizedQuery)
 			return
 		}
-		if isDesktopSearchRequest(c.Request) && (authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, authHeaderToken) ||
-			authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, apiKeyFromBody) ||
-			authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, apiKeyFromQuery)) {
+		if isDesktopSearchRequest(c.Request) && (authenticateDesktopClient(deps, authHeaderToken) ||
+			authenticateDesktopClient(deps, apiKeyFromBody) ||
+			authenticateDesktopClient(deps, apiKeyFromQuery)) {
 			handleProxy(c, deps.TavilyProxy, sanitizedBody, sanitizedQuery)
 			return
 		}
@@ -135,11 +140,22 @@ func isDesktopSearchRequest(r *http.Request) bool {
 	return r.URL.Path == "/search" || r.URL.Path == "/extract"
 }
 
+func authenticateDesktopClient(deps Dependencies, token string) bool {
+	if deps.AccessKeyService != nil {
+		return deps.AccessKeyService.AuthenticateRestricted(token)
+	}
+	return authenticateDesktopAccessKey(deps.Config.DesktopAccessKey, token)
+}
+
 func authenticateDesktopAccessKey(configured, provided string) bool {
 	if configured == "" || provided == "" {
 		return false
 	}
 	return subtle.ConstantTimeCompare([]byte(configured), []byte(provided)) == 1
+}
+
+func authenticateClient(deps Dependencies, token string) bool {
+	return deps.MasterKeyService.Authenticate(token) || deps.AccessKeyService.Authenticate(token)
 }
 
 func masterAuthMiddleware(master *services.MasterKeyService) gin.HandlerFunc {

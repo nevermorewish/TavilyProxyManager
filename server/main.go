@@ -59,6 +59,11 @@ func main() {
 		slogLogger.Error("master key init failed", "err", err)
 		os.Exit(1)
 	}
+	accessKeyService := services.NewAccessKeyService(database)
+	if err := accessKeyService.Load(context.Background(), cfg.DesktopAccessKey); err != nil {
+		slogLogger.Error("access key init failed", "err", err)
+		os.Exit(1)
+	}
 
 	settingsService := services.NewSettingsService(database)
 	keyService := services.NewKeyService(database, slogLogger)
@@ -80,6 +85,7 @@ func main() {
 		Config:           cfg,
 		EmbeddedPublic:   embeddedPublic,
 		MasterKeyService: masterKeyService,
+		AccessKeyService: accessKeyService,
 		SettingsService:  settingsService,
 		KeyService:       keyService,
 		QuotaSyncService: quotaSyncService,

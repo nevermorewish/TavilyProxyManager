@@ -15,6 +15,7 @@ import (
 
 type Dependencies struct {
 	MasterKey  *services.MasterKeyService
+	AccessKeys *services.AccessKeyService
 	Proxy      *services.TavilyProxy
 	Stats      *services.StatsService
 	Stateless  bool
@@ -62,7 +63,7 @@ func NewHandler(deps Dependencies) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := parseBearerToken(r.Header.Get("Authorization"))
-		if !deps.MasterKey.Authenticate(token) {
+		if !deps.MasterKey.Authenticate(token) && !deps.AccessKeys.Authenticate(token) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}

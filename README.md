@@ -191,7 +191,8 @@ curl -X POST "http://localhost:8080/search" \
 | :----------------- | :------------------- | :----------------------- |
 | `LISTEN_ADDR`      | 服务监听地址         | `:8080`                  |
 | `DATABASE_PATH`    | SQLite 数据库路径    | `/app/data/proxy.db`     |
-| `DESKTOP_ACCESS_KEY` | 仅允许搜索与提取的桌面端凭据；留空则禁用 | 空 |
+| `MASTER_KEY`       | 管理后台主密钥       | 首次启动时自动生成       |
+| `DESKTOP_ACCESS_KEY` | 首次启动时导入的默认访问密钥，仅允许搜索与提取 | 未设置时自动生成 |
 | `TAVILY_BASE_URL`  | 上游 Tavily API 地址 | `https://api.tavily.com` |
 | `UPSTREAM_TIMEOUT` | 上游请求超时时间     | `150s`                   |
 | `MCP_STATELESS`    | MCP 是否无状态模式   | `true`                   |

@@ -15,6 +15,14 @@ type APIKey struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
+type AccessKey struct {
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	Key          string    `gorm:"uniqueIndex;not null" json:"key"`
+	Name         string    `gorm:"not null" json:"name"`
+	IsRestricted bool      `gorm:"not null;default:false" json:"is_restricted"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type RequestLog struct {
 	ID                uint      `gorm:"primaryKey" json:"id"`
 	RequestID         string    `gorm:"index;not null" json:"request_id"`

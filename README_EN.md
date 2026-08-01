@@ -191,7 +191,8 @@ If you need stateful sessions, set `MCP_STATELESS=false` and ensure your reverse
 | :----------------- | :----------------------- | :----------------------- |
 | `LISTEN_ADDR`      | Server listening address | `:8080`                  |
 | `DATABASE_PATH`    | Path to SQLite database  | `/app/data/proxy.db`     |
-| `DESKTOP_ACCESS_KEY` | Desktop credential restricted to search and extract; empty disables it | Empty |
+| `MASTER_KEY`       | Administrative master key | Generated on first start |
+| `DESKTOP_ACCESS_KEY` | Default access key imported on first start; restricted to search and extract | Generated when unset |
 | `TAVILY_BASE_URL`  | Upstream Tavily API URL  | `https://api.tavily.com` |
 | `UPSTREAM_TIMEOUT` | Upstream request timeout | `150s`                   |
 | `MCP_STATELESS`    | Enable stateless MCP mode | `true`                  |

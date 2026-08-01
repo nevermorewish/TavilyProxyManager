@@ -72,6 +72,7 @@
                 :refresh-nonce="dashboardRefreshNonce"
               />
               <KeyManagementView v-else-if="active === 'keys'" />
+              <AccessKeysView v-else-if="active === 'access-keys'" />
               <LogsView v-else-if="active === 'logs'" />
               <SettingsView v-else />
             </div>
@@ -115,6 +116,7 @@ import {
   BarChartOutline,
   GlobeOutline,
   KeyOutline,
+  ShieldCheckmarkOutline,
   LanguageOutline,
   ListOutline,
   LogOutOutline,
@@ -125,12 +127,15 @@ import {
 import MasterKeyModal from "./components/MasterKeyModal.vue";
 import DashboardView from "./views/DashboardView.vue";
 import KeyManagementView from "./views/KeyManagementView.vue";
+import AccessKeysView from "./views/AccessKeysView.vue";
 import LogsView from "./views/LogsView.vue";
 import SettingsView from "./views/SettingsView.vue";
 import { api, clearMasterKey, getMasterKey, setMasterKey } from "./api/client";
 import { locale, setLocale, t } from "./i18n";
 
-const active = ref<"dashboard" | "keys" | "logs" | "settings">("dashboard");
+const active = ref<
+  "dashboard" | "keys" | "access-keys" | "logs" | "settings"
+>("dashboard");
 const collapsed = ref(false);
 const theme = ref<any>(null);
 
@@ -209,6 +214,11 @@ const menuOptions = computed(() => [
     icon: renderIcon(BarChartOutline),
   },
   { label: t("app.menu.keys"), key: "keys", icon: renderIcon(KeyOutline) },
+  {
+    label: t("app.menu.accessKeys"),
+    key: "access-keys",
+    icon: renderIcon(ShieldCheckmarkOutline),
+  },
   { label: t("app.menu.logs"), key: "logs", icon: renderIcon(ListOutline) },
   {
     label: t("app.menu.settings"),

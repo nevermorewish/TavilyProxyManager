@@ -25,6 +25,13 @@ export type KeyItem = {
   created_at?: string
 }
 
+export type AccessKeyItem = {
+  id: number
+  key: string
+  name: string
+  created_at: string
+}
+
 export type LogItem = {
   id: number
   request_id: string
