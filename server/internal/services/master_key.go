@@ -17,18 +17,36 @@ import (
 const masterKeySettingKey = "master_key"
 
 type MasterKeyService struct {
-	db     *gorm.DB
-	logger *slog.Logger
+	db       *gorm.DB
+	logger   *slog.Logger
+	fixedKey string
 
 	mu  sync.RWMutex
 	key string
 }
 
-func NewMasterKeyService(db *gorm.DB, logger *slog.Logger) *MasterKeyService {
-	return &MasterKeyService{db: db, logger: logger}
+func NewMasterKeyService(db *gorm.DB, logger *slog.Logger, fixedKey ...string) *MasterKeyService {
+	var configuredKey string
+	if len(fixedKey) > 0 {
+		configuredKey = fixedKey[0]
+	}
+	return &MasterKeyService{db: db, logger: logger, fixedKey: configuredKey}
 }
 
 func (s *MasterKeyService) LoadOrCreate(ctx context.Context) error {
+	if s.fixedKey != "" {
+		setting := models.Setting{Key: masterKeySettingKey, Value: s.fixedKey}
+		if err := s.db.WithContext(ctx).Save(&setting).Error; err != nil {
+			return err
+		}
+
+		s.mu.Lock()
+		s.key = s.fixedKey
+		s.mu.Unlock()
+		s.logger.Info("loaded fixed master key from environment")
+		return nil
+	}
+
 	var setting models.Setting
 	err := s.db.WithContext(ctx).First(&setting, "key = ?", masterKeySettingKey).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,6 +85,10 @@ func (s *MasterKeyService) Authenticate(token string) bool {
 }
 
 func (s *MasterKeyService) Reset(ctx context.Context) (string, error) {
+	if s.fixedKey != "" {
+		return s.fixedKey, nil
+	}
+
 	newKey, err := generateSecret(32)
 	if err != nil {
 		return "", err
@@ -91,4 +113,3 @@ func generateSecret(bytes int) (string, error) {
 	}
 	return base64.RawURLEncoding.EncodeToString(buf), nil
 }
-

@@ -9,6 +9,7 @@ import (
 type Config struct {
 	ListenAddr      string
 	DatabasePath    string
+	MasterKey       string
 	TavilyBaseURL   string
 	UpstreamTimeout time.Duration
 	MCPStateless    bool
@@ -25,6 +26,7 @@ func FromEnv() Config {
 	}
 
 	dbPath := getenvFirst("./server/data/app.db", "DB_PATH", "DATABASE_PATH")
+	masterKey := getenv("MASTER_KEY", "")
 	baseURL := getenv("TAVILY_BASE_URL", "https://api.tavily.com")
 	timeout := getenvDuration("UPSTREAM_TIMEOUT", 150*time.Second)
 	mcpStateless := getenvBool("MCP_STATELESS", true)
@@ -35,6 +37,7 @@ func FromEnv() Config {
 	return Config{
 		ListenAddr:      listenAddr,
 		DatabasePath:    dbPath,
+		MasterKey:       masterKey,
 		TavilyBaseURL:   baseURL,
 		UpstreamTimeout: timeout,
 		MCPStateless:    mcpStateless,

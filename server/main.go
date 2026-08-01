@@ -54,7 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	masterKeyService := services.NewMasterKeyService(database, slogLogger)
+	masterKeyService := services.NewMasterKeyService(database, slogLogger, cfg.MasterKey)
 	if err := masterKeyService.LoadOrCreate(context.Background()); err != nil {
 		slogLogger.Error("master key init failed", "err", err)
 		os.Exit(1)

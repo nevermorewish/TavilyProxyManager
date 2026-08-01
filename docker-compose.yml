@@ -1,16 +1,21 @@
-version: "3.8"
-
 services:
   tavily-proxy:
-    image: ghcr.io/xuncv/tavilyproxymanager:latest
-    pull_policy: always
+    image: crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/tavilyproxymanager:latest
+    pull_policy: missing
     ports:
       - "8080:8080"
     environment:
       - LISTEN_ADDR=:8080
       - DATABASE_PATH=/app/data/proxy.db
+      - MASTER_KEY=RbO8G97uRRQjFt5o-XD5dg57ZivsGbM5WbjkPj4Ho0Q
       - TAVILY_BASE_URL=https://api.tavily.com
       - UPSTREAM_TIMEOUT=30s
+      - HTTP_PROXY=http://host.docker.internal:10808
+      - HTTPS_PROXY=http://host.docker.internal:10808
+      - http_proxy=http://host.docker.internal:10808
+      - https_proxy=http://host.docker.internal:10808
+      - NO_PROXY=localhost,127.0.0.1
+      - no_proxy=localhost,127.0.0.1
     volumes:
       - ./data:/app/data
       # Sync host timezone (Linux): mount host timezone files into container.
